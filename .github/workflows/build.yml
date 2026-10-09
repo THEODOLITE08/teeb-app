@@ -11,6 +11,13 @@ jobs:
         with: { distribution: temurin, java-version: "17" }
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: "8.7" }
-      - run: gradle assembleDebug --no-daemon
+      - name: Build the app
+        run: |
+          S=$(find . -name settings.gradle.kts -not -path "./.git/*" | head -1)
+          if [ -z "$S" ]; then echo "APP FILES NOT FOUND - upload the teeb-android files to this repository"; exit 1; fi
+          cd "$(dirname "$S")"
+          gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
-        with: { name: TEEB-app, path: app/build/outputs/apk/debug/app-debug.apk }
+        with:
+          name: TEEB-app
+          path: "**/app-debug.apk"
